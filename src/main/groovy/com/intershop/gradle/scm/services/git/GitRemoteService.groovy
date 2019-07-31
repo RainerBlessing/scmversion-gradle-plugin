@@ -68,21 +68,29 @@ class GitRemoteService {
             this.localService = (GitLocalService) sls
         }
 
+
         log.debug('Configure authentication')
+        if(key){
+          log.debug('Keyfile {}',key.file)
+        }else{
+          log.debug('No key')
+        }
 
         if(localService.remoteUrl) {
             if (localService.remoteUrl.startsWith('http') && user && user.name && user.password) {
                 log.debug('User name {} and password is used.', user.name)
                 credentials = new UsernamePasswordCredentialsProvider(user.name, user.password)
                 remoteConfigAvailable = true
-            } else if (localService.remoteUrl.startsWith('git@') && key && key.file.exists()) {
+            } else if (localService.remoteUrl.contains('git@') && key && key.file.exists()) {
                 log.debug('ssh connector is used with key {}.', key.file.absolutePath)
                 sshConnector = new SshConnector(key)
                 remoteConfigAvailable = true
             } else {
+                log.info('Could not determine authentication data')
                 remoteConfigAvailable = false
             }
         } else {
+            log.debug("Missing remote URL")
             remoteConfigAvailable = false
         }
     }
